@@ -1,0 +1,40 @@
+{
+  "name": "bulma-datetime",
+  "version": "1.0.0",
+  "description": "bulma-datetime",
+  "private": false,
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack --mode=development",
+    "build": "webpack --mode=production",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitee.com:dianyun/bulma-datetime.git"
+  },
+  "keywords": [
+    "bulma",
+    "datetime"
+  ],
+  "author": "junchen",
+  "license": "ISC",
+  "devDependencies": {
+    "@webpack-cli/init": "^0.1.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.2",
+    "babel-plugin-syntax-dynamic-import": "^6.18.0",
+    "babel-preset-env": "^1.7.0",
+    "css-loader": "^1.0.0",
+    "node-sass": "^4.9.3",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.0",
+    "uglifyjs-webpack-plugin": "^1.3.0",
+    "webpack": "^4.17.3",
+    "webpack-cli": "^3.1.0"
+  },
+  "dependencies": {
+    "moment": "^2.22.2",
+    "bulma": "^0.7.1"
+  }
+}
