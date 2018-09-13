@@ -1,7 +1,6 @@
 import {extend,each} from './util';
 import { createElement } from "./util/dom";
 import Moment from 'moment';
-import "./sass/index.sass";
 
 Moment.locale("zh-cn");
 
