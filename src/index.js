@@ -1,6 +1,7 @@
 import {extend,each} from './util';
 import { createElement } from "./util/dom";
 import Moment from 'moment';
+import "./sass/index.sass";
 
 Moment.locale("zh-cn");
 
@@ -128,7 +129,7 @@ DatetimePicker.prototype = {
         //月
         Object.defineProperty(self,"month",{
             get:function () {
-                return this.$data.month()+1;
+                return this.$data.month();
             },
             enumerable: true,
             configurable: true
@@ -273,14 +274,6 @@ DatetimePicker.prototype = {
         this.container.style.top = top + 'px';
     },
     _refreshCalendar() {
-        if (this.month < 0) {
-            this.year -= Math.ceil(this.month / 12);
-            this.month += 12;
-        }
-        if (this.month > 11) {
-            this.year += Math.floor(this.month / 12);
-            this.month -= 12;
-        }
         this.container.querySelector(".calendar-nav-year").innerHTML = this.$data.localeData().relativeTime(this.year, null, 'yy', null).replace(" ", "");
         this.container.querySelector(".calendar-nav-month").innerHTML = Moment.monthsShort()[this.month];
         this.container.querySelector('.calendar-body').innerHTML = '';
@@ -292,7 +285,7 @@ DatetimePicker.prototype = {
         let days = '';
         //月天数
         let numberOfDays = this.$data.daysInMonth(),
-            //星期
+            //星期几
             before = Moment().year(this.year).month(this.month).date(1).day();
         const startDay = Moment().startOf('week').day();
         if (startDay > 0) {
@@ -307,8 +300,8 @@ DatetimePicker.prototype = {
             after -= 7;
         }
         cells += 7 - after;
-        for (var i = 0; i < cells; i++) {
-            var day = Moment().year(this.year).month(this.month).date(1 + (i - before)).hours(0).minutes(0).seconds(0).milliseconds(0),
+        for (let i = 0; i < cells; i++){
+            let day = Moment().year(this.year).month(this.month).date(i - before).hours(0).minutes(0).seconds(0).milliseconds(0),
                 date = Moment().year(this.year).month(this.month).date(this.date).hours(0).minutes(0).seconds(0).milliseconds(0),
                 isBetween = false,
                 isSelected = day.diff(date) == 0,
@@ -317,14 +310,13 @@ DatetimePicker.prototype = {
                 isToday = day.diff(now) == 0,
                 isEmpty = i < before || i >= (numberOfDays + before),
                 isDisabled = false;
-
+            //当前月 不等于 实际月
             if (day.month() !== this.month || (this.minDate && day.unix() < this.minDate.unix()) || (this.maxDate && day.unix() > this.maxDate.unix())) {
                 isDisabled = true;
             }
             if(isDisabled){
                 isSelected = false;
             }
-
             days += this._renderDay(day.date(), day.month(), day.year(), isSelected, isToday, isDisabled, isEmpty, isBetween, isSelectedIn, isSelectedOut);
         }
         this.container.querySelector('.calendar-body').insertAdjacentHTML('beforeend', days);
@@ -498,4 +490,4 @@ DatetimePicker.prototype = {
 
 
 
-export default DatetimePicke
+export default DatetimePicker
