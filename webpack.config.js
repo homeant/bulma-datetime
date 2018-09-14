@@ -9,6 +9,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const config = new Config();
 
 config.when(process.env.NODE_ENV === 'development',config =>{
+    config.devtool("source-map");
     config
         .entry('demo')
         .add('./src/demo/index.js')
@@ -21,10 +22,10 @@ config.when(process.env.NODE_ENV === 'development',config =>{
 config.when(process.env.NODE_ENV === 'production',config =>{
     config
         .entry('index')
-        .add('./src/index.js').add("./src/sass/index.sass")
+        .add('./src/index.js')
         .end()
         .output
-        .path(path.resolve(__dirname, 'dist')).library("datetime").libraryTarget("umd")
+        .path(path.resolve(__dirname, 'dist')).library("bulmaDatetime").libraryTarget("umd").umdNamedDefine(true)
         .filename('[name].js');
 })
 
@@ -32,7 +33,7 @@ config.module
     .rule('compile')
     .test(/\.js$/)
     .include
-    .add('src').add("demo")
+    .add('src')
     .end()
     .use('babel')
     .loader('babel-loader')
@@ -71,19 +72,28 @@ config.plugin("extract-css").use(
     })
 )
 
-config.plugin("define").use(
-    new webpack.DefinePlugin({
-        'process.env': {
-            NODE_ENV: "development"
-        }
-    })
-);
 
+config.when(process.env.NODE_ENV === 'development', config => {
+    config.plugin("define").use(
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: "development"
+            }
+        })
+    );
+});
 
 config.when(process.env.NODE_ENV === 'production', config => {
     config.externals({
         "moment": "moment"
     });
+    config.plugin("define").use(
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: "production"
+            }
+        })
+    );
 });
 
 // Export the completed configuration object to be consumed by webpack
