@@ -4,6 +4,7 @@ const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 //const PreloadWebpackPlugin  = require("preload-webpack-plugin")
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 
 const config = new Config();
@@ -48,10 +49,6 @@ config.module
     })
 
 
-// config.module.rule("scss")
-//     .test(/\.scss/)
-//     .use("style").loader("style-loader").end().use("css").loader("css-loader").end().use("sass").loader("sass-loader")
-
 config.module.rule('sass').test(/\.sass$/).use("mini").loader(MiniCssExtractPlugin.loader).end()
     .use("css").loader("css-loader").end()
     .use("sass").loader("sass-loader").end();
@@ -71,6 +68,14 @@ config.plugin("extract-css").use(
         chunkFilename: 'css/[name].css'
     })
 )
+
+config.plugin('copy').use(new CopyWebpackPlugin([
+    {
+        from:"./src/sass",
+    }
+]))
+
+
 
 
 config.when(process.env.NODE_ENV === 'development', config => {
