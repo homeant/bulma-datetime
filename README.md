@@ -4,11 +4,11 @@
 [![npm](https://img.shields.io/npm/dm/bulma-datetime.svg)](https://www.npmjs.com/package/bulma-datetime)
 [![Build Status](https://travis-ci.org/Wikiki/bulma-datetime.svg?branch=master)](https://travis-ci.org/Wikiki/bulma-datetime)
 
-![日期类型](./image/year.png)
+![日期类型](http://image.tianhui.xin/bulma-datetime/year.png?x-oss-process=style/make)
 
-![日期类型](./image/year2.png)
+![日期类型](http://image.tianhui.xin/bulma-datetime/year2.png?x-oss-process=style/make)
 
-![时间类型](./image/datetime.png)
+![时间类型](http://image.tianhui.xin/bulma-datetime/datetime.png?x-oss-process=style/make)
 
 
 ## install

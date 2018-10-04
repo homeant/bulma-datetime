@@ -1,6 +1,6 @@
 {
   "name": "bulma-datetime",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "bulma-datetime",
   "private": false,
   "main": "dist/index.js",
