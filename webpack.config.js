@@ -1,105 +1,113 @@
 const path = require('path');
-const Config = require('webpack-chain');
-const webpack = require("webpack");
+const isProd = process.env.NODE_ENV === 'production';
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-//const PreloadWebpackPlugin  = require("preload-webpack-plugin")
-const CopyWebpackPlugin = require("copy-webpack-plugin");
 
+const WebpackChain = require('webpack-chain');
 
-const config = new Config();
+const config = new WebpackChain();
 
-config.when(process.env.NODE_ENV === 'development',config =>{
-    config.devtool("source-map");
-    config
-        .entry('demo')
-        .add('./src/demo/index.js')
-        .end()
-        .output
-        .path(path.resolve(__dirname, 'dist'))
-        .filename('[name].js');
+config.when(isProd,config=>{
+    config.entry('index').add('./src/index.js');
+}).when(!isProd,config=>{
+    config.entry('index').add('./example/index.js');
 })
+// Modify output settings
+.output
+    .path(path.join(__dirname, "dist")).filename('[name].js').end()
+    .when(isProd, config => {
+    config.mode('production').output.library("bulmaDatetime").libraryTarget("umd").umdNamedDefine(true);
+}).when(!isProd,config=>{
+    config.mode('development').devtool('source-map');
+}).end();
 
-config.when(process.env.NODE_ENV === 'production',config =>{
-    config
-        .entry('index')
-        .add('./src/index.js')
-        .end()
-        .output
-        .path(path.resolve(__dirname, 'dist')).library("bulmaDatetime").libraryTarget("umd").umdNamedDefine(true)
-        .filename('[name].js');
-})
-
-config.module
-    .rule('compile')
+config
+    .module
+    .rule("compile")
     .test(/\.js$/)
-    .include
-    .add('src')
-    .end()
-    .use('babel')
-    .loader('babel-loader')
+    .include.add(path.join(__dirname,'src')).end()
+    .exclude.add(/node_modules/).end()
+    .use('babel').loader("babel-loader")
     .options({
-        plugins: ['syntax-dynamic-import'],
-        presets: [
-            'env',
-            {
-                modules: false
-            }
-        ]
-    })
+        presets: ['@babel/preset-env'],
+        plugins: [require('@babel/plugin-proposal-class-properties')]
+    });
 
+config.when(isProd,config=>{
+    config.module.rule("css").test(/\.(sa|sc|c)ss$/).use("style").loader(MiniCssExtractPlugin.loader);
+}).when(!isProd,config=>{
+    config.module.rule("css").test(/\.(sa|sc|c)ss$/).use("style-loader").loader("style-loader").options({sourceMap:false});
+})
 
-config.module.rule('sass').test(/\.sass$/).use("mini").loader(MiniCssExtractPlugin.loader).end()
-    .use("css").loader("css-loader").end()
-    .use("sass").loader("sass-loader").end();
+config.module.rule("css").test(/\.(sa|sc|c)ss$/).use("css-loader").loader("css-loader").options({sourceMap:false});
 
-
-config.plugin('html-index').use(new HtmlWebpackPlugin({
-    template: "index.html",
-    filename: "index.html",
-    chunks: ["demo","index"]//按需引入对应名字的js文件
-}));
-
-//config.plugin('preload-index').use(new PreloadWebpackPlugin());
-
-config.plugin("extract-css").use(
-    new MiniCssExtractPlugin({
-        filename: "css/[name].css",
-        chunkFilename: 'css/[name].css'
-    })
-)
-
-config.plugin('copy').use(new CopyWebpackPlugin([
-    {
-        from:"./src/sass",
-    }
-]))
-
-
-
-
-config.when(process.env.NODE_ENV === 'development', config => {
-    config.plugin("define").use(
-        new webpack.DefinePlugin({
-            'process.env': {
-                NODE_ENV: "development"
-            }
-        })
-    );
+config.module.rule("scss").test(/\.scss$/).use("scss-loader").loader("sass-loader").options({
+    sourceMap: false
+});
+config.module.rule("sass").test(/\.sass$/).use("sass-loader").loader("sass-loader").options({
+    sourceMap: false,
+    indentedSyntax: true
 });
 
-config.when(process.env.NODE_ENV === 'production', config => {
+
+config.when(!isProd,config=>{
+    const HtmlWebpackPlugin = require('html-webpack-plugin');
+    config.plugin("html").use(HtmlWebpackPlugin, [{
+        /*
+         template 参数指定入口 html 文件路径，插件会把这个文件交给 webpack 去编译，
+         webpack 按照正常流程，找到 loaders 中 test 条件匹配的 loader 来编译，那么这里 html-loader 就是匹配的 loader
+         html-loader 编译后产生的字符串，会由 html-webpack-plugin 储存为 html 文件到输出目录，默认文件名为 index.html
+         可以通过 filename 参数指定输出的文件名
+         html-webpack-plugin 也可以不指定 template 参数，它会使用默认的 html 模板。
+         */
+        template: "./index.html",
+        /*
+         因为和 webpack 4 的兼容性问题，chunksSortMode 参数需要设置为 none
+         https://github.com/jantimon/html-webpack-plugin/issues/870
+         */
+        chunksSortMode: 'none',
+        xhtml: true,
+        minify: {
+            collapseWhitespace: true, //删除空格，但是不会删除SCRIPT、style和textarea中的空格
+            conservativeCollapse: false, //删除空格，总是保留一个空格
+            removeAttributeQuotes: false, //删除引号，删除不需要引号的值
+            useShortDoctype: false, //使用短的文档类型
+            removeComments: true,
+            collapseBooleanAttributes: true,
+            removeScriptTypeAttributes: true
+            // more options:
+            // https://github.com/kangax/html-minifier#options-quick-reference
+        }
+    }]);
+})
+
+
+config.resolve.alias.set("@",path.join(__dirname,"src"));
+
+config.when(isProd,config=>{
+    const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+    const CopyWebpackPlugin = require("copy-webpack-plugin");
+    config.optimization.minimizer([
+        new UglifyJSPlugin()
+    ])
+    config.plugin('extract-css')
+        .use(MiniCssExtractPlugin, [{
+            filename: "css/[name].css",
+            chunkFilename: "css/[name].css"
+        }]);
+    config.plugin('copy').use(new CopyWebpackPlugin([
+        {
+            from:"./src/sass",
+        }
+    ]))
     config.externals({
         "moment": "moment"
     });
-    config.plugin("define").use(
-        new webpack.DefinePlugin({
-            'process.env': {
-                NODE_ENV: "production"
-            }
-        })
-    );
-});
+}).when(!isProd,config=>{
+    config.devServer.host('localhost').port(8080).open(process.os === 'darwin');
+})
+
+
 
 // Export the completed configuration object to be consumed by webpack
 module.exports = config.toConfig();
+

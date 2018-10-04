@@ -4,6 +4,12 @@
 [![npm](https://img.shields.io/npm/dm/bulma-datetime.svg)](https://www.npmjs.com/package/bulma-datetime)
 [![Build Status](https://travis-ci.org/Wikiki/bulma-datetime.svg?branch=master)](https://travis-ci.org/Wikiki/bulma-datetime)
 
+![日期类型](./image/year.png)
+
+![日期类型](./image/year2.png)
+
+![时间类型](./image/datetime.png)
+
 
 ## install
 
