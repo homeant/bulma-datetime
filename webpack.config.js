@@ -32,6 +32,37 @@ config
         plugins: [require('@babel/plugin-proposal-class-properties')]
     });
 
+config.module
+    .rule('images')
+    .test(/\.(png|jpe?g|gif|webp)(\?.*)?$/)
+    .use('url-loader')
+    .loader('url-loader')
+    .options({
+        limit: 4096,
+        name: "images/[name].[ext]"
+    })
+
+// do not base64-inline SVGs.
+// https://github.com/facebookincubator/create-react-app/pull/1180
+config.module
+    .rule('svg')
+    .test(/\.(svg)(\?.*)?$/)
+    .use('file-loader')
+    .loader('file-loader')
+    .options({
+        name: "images/[name].[ext]"
+    })
+
+config.module
+    .rule("fonts")
+    .test(/\.(woff2?|eot|ttf|otf)(\?.*)?$/i)
+    .use('url-loader')
+    .loader('url-loader')
+    .options({
+        limit: 4096,
+        name: "fonts/[name].[ext]"
+    });
+
 config.when(isProd,config=>{
     config.module.rule("css").test(/\.(sa|sc|c)ss$/).use("style").loader(MiniCssExtractPlugin.loader);
 }).when(!isProd,config=>{
@@ -47,7 +78,6 @@ config.module.rule("sass").test(/\.sass$/).use("sass-loader").loader("sass-loade
     sourceMap: false,
     indentedSyntax: true
 });
-
 
 config.when(!isProd,config=>{
     const HtmlWebpackPlugin = require('html-webpack-plugin');

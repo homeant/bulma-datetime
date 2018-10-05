@@ -25,6 +25,7 @@ $calendar-confirm-padding: 0.5em 1em !default
   -o-#{$property}: #{$value}
   #{$property}: #{$value}
 
+@import "./iconfont.css"
 
 =calendar
   .calendar
@@ -43,6 +44,14 @@ $calendar-confirm-padding: 0.5em 1em !default
       justify-content: space-between
       font-size: $size-5
       padding: $calendar-header-nav-padding
+      .icon-prev:before
+        content: "\e600"
+      .icon-next:before
+        content: "\e601"
+      .icon-next_more:before
+        content: "\ec0b"
+      .icon-prev_more:before
+        content: "\ec0c"
       .calendar-nav-control
         flex: 1 1 0
         .calendar-time-text

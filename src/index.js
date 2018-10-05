@@ -11,16 +11,24 @@ const template = (data) => `
     <div class="calendar">
         <div class="calendar-nav">
             <div class="calendar-nav-prev">
-                <a class="button is-small calendar-nav-prev-year"><<</a>
-                <a class="button is-small calendar-nav-prev-month"><</a>
+                <a class="button is-small calendar-nav-prev-year">
+                    <i class="icon iconfont icon-prev_more"></i>
+                </a>
+                <a class="button is-small calendar-nav-prev-month">
+                    <i class="icon iconfont icon-prev"></i>
+                </a>
             </div>
             <div class="calendar-nav-control">
                 <span class="calendar-nav-year">${data.year}</span>
                 <span class="calendar-nav-month">${data.month}</span>
             </div>
             <div class="calendar-nav-next">
-                <a class="button is-small calendar-nav-next-month">></a>
-                <a class="button is-small calendar-nav-next-year">>></a>
+                <a class="button is-small calendar-nav-next-month">
+                    <i class="icon iconfont icon-next"></i>
+                </a>
+                <a class="button is-small calendar-nav-next-year">
+                    <i class="icon iconfont icon-next_more"></i>
+                </a>
             </div>
         </div>
         <div class="calendar-container">
