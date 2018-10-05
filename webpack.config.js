@@ -20,6 +20,9 @@ config.when(isProd,config=>{
     config.mode('development').devtool('source-map');
 }).end();
 
+/**
+ * module
+ */
 config
     .module
     .rule("compile")
@@ -69,17 +72,42 @@ config.when(isProd,config=>{
     config.module.rule("css").test(/\.(sa|sc|c)ss$/).use("style-loader").loader("style-loader").options({sourceMap:false});
 })
 
-config.module.rule("css").test(/\.(sa|sc|c)ss$/).use("css-loader").loader("css-loader").options({sourceMap:false});
+config.module.rule("style").test(/\.(sa|sc|c)ss$/).use("css-loader").loader("css-loader")
+    .options({
+        //modules:true,
+        sourceMap:false,
+        localIdentName:'[name]_[local]_[hash:base64:5]'
+    });
 
 config.module.rule("scss").test(/\.scss$/).use("scss-loader").loader("sass-loader").options({
     sourceMap: false
 });
 config.module.rule("sass").test(/\.sass$/).use("sass-loader").loader("sass-loader").options({
     sourceMap: false,
+    modules: true,
     indentedSyntax: true
 });
 
-config.when(!isProd,config=>{
+/**
+ * plugin
+ */
+config.when(isProd,config=>{
+    const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+    const CopyWebpackPlugin = require("copy-webpack-plugin");
+    config.optimization.minimizer([
+        new UglifyJSPlugin()
+    ])
+    config.plugin('extract-css')
+        .use(MiniCssExtractPlugin, [{
+            filename: "css/[name].css",
+            chunkFilename: "css/[name].css"
+        }]);
+    config.plugin('copy').use(new CopyWebpackPlugin([
+        {
+            from:"./src/sass",
+        }
+    ]))
+}).when(!isProd,config=>{
     const HtmlWebpackPlugin = require('html-webpack-plugin');
     config.plugin("html").use(HtmlWebpackPlugin, [{
         /*
@@ -110,25 +138,7 @@ config.when(!isProd,config=>{
     }]);
 })
 
-
-config.resolve.alias.set("@",path.join(__dirname,"src"));
-
 config.when(isProd,config=>{
-    const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-    const CopyWebpackPlugin = require("copy-webpack-plugin");
-    config.optimization.minimizer([
-        new UglifyJSPlugin()
-    ])
-    config.plugin('extract-css')
-        .use(MiniCssExtractPlugin, [{
-            filename: "css/[name].css",
-            chunkFilename: "css/[name].css"
-        }]);
-    config.plugin('copy').use(new CopyWebpackPlugin([
-        {
-            from:"./src/sass",
-        }
-    ]))
     config.externals({
         "moment": "moment"
     });
@@ -136,7 +146,7 @@ config.when(isProd,config=>{
     config.devServer.host('localhost').port(8080).open(process.os === 'darwin');
 })
 
-
+config.resolve.alias.set("@",path.join(__dirname,"src"));
 
 // Export the completed configuration object to be consumed by webpack
 module.exports = config.toConfig();
