@@ -15,6 +15,8 @@ config.when(isProd,config=>{
 .output
     .path(path.join(__dirname, "dist")).filename('[name].js').end()
     .when(isProd, config => {
+        //libraryTarget 配置以何种方式导出库。
+        //output.library 配置导出库的名称。
     config.mode('production').output.library("bulmaDatetime").libraryTarget("umd").umdNamedDefine(true);
 }).when(!isProd,config=>{
     config.mode('development').devtool('source-map');
@@ -50,10 +52,11 @@ config.module
 config.module
     .rule('svg')
     .test(/\.(svg)(\?.*)?$/)
-    .use('file-loader')
-    .loader('file-loader')
+    .use('url-loader')
+    .loader('url-loader')
     .options({
-        name: "images/[name].[ext]"
+        limit: 1024 * 3,//30kb
+        fallback: 'file-loader'
     })
 
 config.module
@@ -63,28 +66,41 @@ config.module
     .loader('url-loader')
     .options({
         limit: 4096,
-        name: "fonts/[name].[ext]"
+        fallback: {
+            loader: 'file-loader',
+            options: {
+                name: "fonts/[name].[ext]"
+            }
+        }
     });
 
 config.when(isProd,config=>{
-    config.module.rule("css").test(/\.(sa|sc|c)ss$/).use("style").loader(MiniCssExtractPlugin.loader);
+    config.module.rule("css").test(/\.(sa|sc|c)ss$/).use("style").loader(MiniCssExtractPlugin.loader,[{
+        options: {
+            publicPath: './'
+        }
+    }]);
 }).when(!isProd,config=>{
     config.module.rule("css").test(/\.(sa|sc|c)ss$/).use("style-loader").loader("style-loader").options({sourceMap:false});
 })
 
 config.module.rule("style").test(/\.(sa|sc|c)ss$/).use("css-loader").loader("css-loader")
     .options({
-        //modules:true,
-        sourceMap:false,
-        localIdentName:'[name]_[local]_[hash:base64:5]'
+        sourceMap: false,
+        importLoaders: 1,
+        modules: false,
+    }).end()
+    .use('postcss-loader')
+    .loader('postcss-loader').options({
+        sourceMap: false
     });
+
 
 config.module.rule("scss").test(/\.scss$/).use("scss-loader").loader("sass-loader").options({
     sourceMap: false
 });
 config.module.rule("sass").test(/\.sass$/).use("sass-loader").loader("sass-loader").options({
     sourceMap: false,
-    modules: true,
     indentedSyntax: true
 });
 
@@ -107,6 +123,8 @@ config.when(isProd,config=>{
             from:"./src/sass",
         }
     ]))
+    const CleanWebpackPlugin = require('clean-webpack-plugin');
+    config.plugin("clear").use(new CleanWebpackPlugin([path.join(__dirname, 'dist')]));
 }).when(!isProd,config=>{
     const HtmlWebpackPlugin = require('html-webpack-plugin');
     config.plugin("html").use(HtmlWebpackPlugin, [{
