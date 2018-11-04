@@ -110,9 +110,8 @@ config.module.rule("sass").test(/\.sass$/).use("sass-loader").loader("sass-loade
 config.when(isProd,config=>{
     const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
     const CopyWebpackPlugin = require("copy-webpack-plugin");
-    config.optimization.minimizer([
-        new UglifyJSPlugin()
-    ])
+    config.plugin("js").use(new UglifyJSPlugin());
+    config.optimization.minimize(true);
     config.plugin('extract-css')
         .use(MiniCssExtractPlugin, [{
             filename: "css/[name].css",
@@ -168,4 +167,3 @@ config.resolve.alias.set("@",path.join(__dirname,"src"));
 
 // Export the completed configuration object to be consumed by webpack
 module.exports = config.toConfig();
-
