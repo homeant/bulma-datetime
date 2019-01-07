@@ -43,7 +43,7 @@
     "webpack": "^4.20.2",
     "webpack-chain": "^4.12.1",
     "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "^3.1.9"
+    "webpack-dev-server": "^3.1.11"
   },
   "dependencies": {
     "bulma": "^0.7.1",
